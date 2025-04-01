@@ -1,6 +1,6 @@
 spring:
   application:
-    name: "hr-payroll"
+    name: hr-payroll
 server:
   port: 8101
 hr-worker:
