@@ -11,5 +11,9 @@ spring:
     console:
       enabled: true
       path: /h2-console
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
 server:
-  port: ${SERVER_PORT:8001}
+  port: 8001
