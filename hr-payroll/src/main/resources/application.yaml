@@ -3,3 +3,5 @@ spring:
     name: "hr-payroll"
 server:
   port: 8101
+hr-worker:
+  host: http://localhost:8001
