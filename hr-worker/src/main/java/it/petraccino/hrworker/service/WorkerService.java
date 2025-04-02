@@ -1,4 +1,4 @@
-package it.petraccino.hrworker.controller.service;
+package it.petraccino.hrworker.service;
 
 import it.petraccino.hrworker.entity.Worker;
 import it.petraccino.hrworker.repository.WorkerRepository;

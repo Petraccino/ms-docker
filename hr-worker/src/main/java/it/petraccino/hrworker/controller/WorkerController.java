@@ -1,6 +1,6 @@
 package it.petraccino.hrworker.controller;
 
-import it.petraccino.hrworker.controller.service.WorkerService;
+import it.petraccino.hrworker.service.WorkerService;
 import it.petraccino.hrworker.entity.Worker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
