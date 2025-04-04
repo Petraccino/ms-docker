@@ -12,6 +12,11 @@ spring:
           uri: lb://hr-payroll
           predicates:
             - Path=/payments/**
+resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 10s
 eureka:
   client:
     service-url:
