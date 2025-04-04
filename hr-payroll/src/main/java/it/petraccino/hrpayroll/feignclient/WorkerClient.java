@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "hr-worker", path = "/workers")
+@FeignClient(name = "hr-worker", path = "/workers", fallback = WorkerClientFallback.class)
 public interface WorkerClient {
 
     @GetMapping(value = "/{id}")

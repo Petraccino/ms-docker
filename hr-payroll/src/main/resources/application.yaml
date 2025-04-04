@@ -1,6 +1,15 @@
 spring:
   application:
     name: hr-payroll
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 1000
+            readTimeout: 1000
 server:
   port: ${PORT:0}
 eureka:
