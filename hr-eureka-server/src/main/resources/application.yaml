@@ -1,9 +1,7 @@
 spring:
+  profiles:
+    active: dafault
   application:
-  name: hr-eureka-server
-server:
-  port: 8761
-eureka:
-  client:
-    registerWithEureka: false
-    fetchRegistry: false
+    name: hr-eureka-server
+  config:
+    import: optional:configserver:http://localhost:8888
