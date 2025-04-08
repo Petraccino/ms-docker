@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dafault
+    active: default
   application:
     name: hr-worker
   config:
