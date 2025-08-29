@@ -1,5 +1,6 @@
 package it.petraccino.hruser.service;
 
+import it.petraccino.hruser.dto.UserDTO;
 import it.petraccino.hruser.entity.User;
 import it.petraccino.hruser.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,8 @@ public class UserService {
         return repository.findById(id).orElseThrow();
     }
 
-    public User findByEmail(String email) {
-        return repository.findByEmail(email);
+    public UserDTO findByEmail(String email) {
+        User user = repository.findByEmail(email);
+        return new UserDTO(user);
     }
 }
