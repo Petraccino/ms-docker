@@ -6,8 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,6 +18,6 @@ public class User implements Serializable {
     private String name;
     private String email;
     private String password;
-    private Set<Role> roles = new HashSet<>();
+    private List<String> roles;
 
 }
