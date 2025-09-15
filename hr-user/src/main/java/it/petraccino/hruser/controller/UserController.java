@@ -1,6 +1,5 @@
 package it.petraccino.hruser.controller;
 
-import it.petraccino.hruser.dto.UserDTO;
 import it.petraccino.hruser.entity.User;
 import it.petraccino.hruser.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +19,9 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping(value = "/by-email")
-    public ResponseEntity<UserDTO> findByEmail(@RequestParam String email){
-        UserDTO user = service.findByEmail(email);
+    @GetMapping(value = "/email")
+    public ResponseEntity<User> findByEmail(@RequestParam String email){
+        User user = service.findByEmail(email);
         return ResponseEntity.ok(user);
     }
 
