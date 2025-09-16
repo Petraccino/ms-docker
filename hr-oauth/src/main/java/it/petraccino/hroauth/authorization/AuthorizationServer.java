@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.server.authorization.client.InMemoryR
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
 import java.time.Duration;
@@ -29,7 +28,7 @@ public class AuthorizationServer {
     RegisteredClientRepository registeredClientRepository(PasswordEncoder encoder) {
         RegisteredClient gateway = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway")
-                .clientSecret(encoder.encode("gateway-secret"))   // <— encode, non {noop}
+                .clientSecret(encoder.encode("gateway-secret"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
@@ -37,18 +36,7 @@ public class AuthorizationServer {
                 .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofHours(1)).build())
                 .build();
 
-        RegisteredClient browserApp = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("browser")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://localhost:8765/login/oauth2/code/browser")
-                .redirectUri("https://oauth.pstmn.io/v1/callback") // per test con Postman
-                .postLogoutRedirectUri("http://localhost:8765/")
-                .scope("openid").scope("profile").scope("api.read")
-                .clientSettings(ClientSettings.builder().requireProofKey(true).build())
-                .build();
-
-        return new InMemoryRegisteredClientRepository(List.of(gateway, browserApp));
+        return new InMemoryRegisteredClientRepository(List.of(gateway));
     }
 
 
