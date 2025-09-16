@@ -21,7 +21,7 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    SecurityFilterChain authServerSecurity(HttpSecurity http) throws Exception {
+    SecurityFilterChain api(HttpSecurity http) throws Exception {
         var authServer = OAuth2AuthorizationServerConfigurer.authorizationServer();
         RequestMatcher endpointsMatcher = authServer.getEndpointsMatcher();
         http
