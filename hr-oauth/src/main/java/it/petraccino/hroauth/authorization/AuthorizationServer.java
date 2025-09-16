@@ -7,6 +7,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import it.petraccino.hroauth.utility.Jwks;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
@@ -25,15 +26,15 @@ import java.util.UUID;
 public class AuthorizationServer {
 
     @Bean
-    RegisteredClientRepository registeredClientRepository() {
+    RegisteredClientRepository registeredClientRepository(PasswordEncoder encoder) {
         RegisteredClient gateway = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway")
-                .clientSecret("{noop}gateway-secret")
+                .clientSecret(encoder.encode("gateway-secret"))   // <— encode, non {noop}
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .scope("gw.read").scope("gw.write")
-                .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.ofHours(1)).build())
+                .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofHours(1)).build())
                 .build();
 
         RegisteredClient browserApp = RegisteredClient.withId(UUID.randomUUID().toString())
@@ -41,6 +42,7 @@ public class AuthorizationServer {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("http://localhost:8765/login/oauth2/code/browser")
+                .redirectUri("https://oauth.pstmn.io/v1/callback") // per test con Postman
                 .postLogoutRedirectUri("http://localhost:8765/")
                 .scope("openid").scope("profile").scope("api.read")
                 .clientSettings(ClientSettings.builder().requireProofKey(true).build())
@@ -48,6 +50,7 @@ public class AuthorizationServer {
 
         return new InMemoryRegisteredClientRepository(List.of(gateway, browserApp));
     }
+
 
     @Bean
     JWKSource<SecurityContext> jwkSource() {
