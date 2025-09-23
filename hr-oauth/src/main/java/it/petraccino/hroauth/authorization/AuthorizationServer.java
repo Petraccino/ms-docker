@@ -5,8 +5,10 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import it.petraccino.hroauth.utility.Jwks;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -14,29 +16,31 @@ import org.springframework.security.oauth2.server.authorization.client.InMemoryR
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
-
 @Configuration
+@RequiredArgsConstructor
 public class AuthorizationServer {
 
-    @Bean
-    RegisteredClientRepository registeredClientRepository(PasswordEncoder encoder) {
-        RegisteredClient gateway = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("gateway")
-                .clientSecret(encoder.encode("gateway-secret"))
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .scope("gw.read").scope("gw.write")
-                .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofHours(1)).build())
-                .build();
+    private final PasswordEncoder passwordEncoder;
 
-        return new InMemoryRegisteredClientRepository(List.of(gateway));
+    @Bean
+    public RegisteredClientRepository registeredClientRepository() {
+        var gateway = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("gateway")
+                .clientSecret(passwordEncoder.encode("gateway-secret"))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .redirectUri("http://localhost:8765/login/oauth2/code/gateway")
+                .scope("openid")
+                .scope("profile")
+                .build();
+        return new InMemoryRegisteredClientRepository(gateway);
     }
 
 
@@ -46,6 +50,18 @@ public class AuthorizationServer {
         JWKSet jwkSet = new JWKSet(rsa);
         return (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
     }
+
+    @Bean
+    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
+        return context -> {
+            List<String> roles = context.getPrincipal().getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .filter(a -> a.startsWith("ROLE_"))
+                    .toList();
+            context.getClaims().claim("roles", roles);
+        };
+    }
+
 
     @Bean
     AuthorizationServerSettings authorizationServerSettings() {

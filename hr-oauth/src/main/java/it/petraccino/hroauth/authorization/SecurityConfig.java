@@ -6,9 +6,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
@@ -17,16 +19,19 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    SecurityFilterChain api(HttpSecurity http) throws Exception {
-        var authServer = OAuth2AuthorizationServerConfigurer.authorizationServer();
-        RequestMatcher endpointsMatcher = authServer.getEndpointsMatcher();
-        http
-                .securityMatcher(endpointsMatcher)
-                .with(authServer, c -> c.oidc(Customizer.withDefaults()))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
-
+    SecurityFilterChain authServerSecurity(HttpSecurity http) throws Exception {
+        var as = OAuth2AuthorizationServerConfigurer.authorizationServer();
+        RequestMatcher endpoints = as.getEndpointsMatcher();
+        http.securityMatcher(endpoints)
+            .with(as, c -> c.oidc(Customizer.withDefaults()))
+            .authorizeHttpRequests(a -> a
+                    .requestMatchers("/.well-known/**").permitAll()
+                    .anyRequest().authenticated()
+            )
+            .csrf(csrf -> csrf.ignoringRequestMatchers(endpoints))
+            .exceptionHandling(e -> e.authenticationEntryPoint(
+                    new LoginUrlAuthenticationEntryPoint("/login")))
+            .oauth2ResourceServer(o -> o.jwt(Customizer.withDefaults()));
         return http.build();
     }
 
@@ -35,7 +40,7 @@ public class SecurityConfig {
     SecurityFilterChain defaultSecurity(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/**", "/error").permitAll()
+                        .requestMatchers("/login", "/error", "/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults());
@@ -43,8 +48,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
-        return org.springframework.security.crypto.factory.PasswordEncoderFactories
-                .createDelegatingPasswordEncoder();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
