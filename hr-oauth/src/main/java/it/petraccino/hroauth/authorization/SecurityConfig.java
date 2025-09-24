@@ -40,7 +40,7 @@ public class SecurityConfig {
     SecurityFilterChain defaultSecurity(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/error", "/actuator/**").permitAll()
+                        .requestMatchers("/login", "/error", "/actuator/**", "/.well-known/**" ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults());
