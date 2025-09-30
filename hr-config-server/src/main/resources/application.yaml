@@ -2,7 +2,7 @@ spring:
   application:
     name: hr-config-server
   profiles:
-    active: dev
+    active: default
   cloud:
     config:
       server:
