@@ -1,8 +1,6 @@
 spring:
   application:
     name: hr-config-server
-  profiles:
-    active: test
   cloud:
     config:
       server:
