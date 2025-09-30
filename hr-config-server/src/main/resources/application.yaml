@@ -8,9 +8,9 @@ spring:
       server:
         git:
           default-label: main
-          uri: ${GITHUB-URI}
-          username: ${GITHUB-USER}
-          password: ${GITHUB-PASS}
+          uri: ${GITHUB_URI}
+          username: ${GITHUB_USER}
+          password: ${GITHUB_PASS}
 management:
   endpoints:
     web:
