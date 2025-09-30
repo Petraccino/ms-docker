@@ -1,12 +1,14 @@
 spring:
   application:
     name: hr-config-server
+  profiles:
+    active: default
   cloud:
     config:
       server:
         git:
           default-label: main
-          uri: ${GITHUB-URI}
+          uri: https://github.com/Petraccino/ms-docker-configs
           username: ${GITHUB-USER}
           password: ${GITHUB-PASS}
 management:
