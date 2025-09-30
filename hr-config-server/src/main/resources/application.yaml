@@ -14,7 +14,7 @@ spring:
 management:
   endpoints:
     web:
-    exposure:
-      include: "*"
+      exposure:
+        include: "*"
 server:
   port: 8888
