@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: hr-config-server
+  cloud:
+    config:
+      server:
+        git:
+          default-label: main
+          uri: ${GITHUB_URI}
+          username: ${GITHUB_USER}
+          password: ${GITHUB_PASS}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+server:
+  port: 8888
