@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import it.petraccino.hroauth.utility.Jwks;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,14 +29,14 @@ public class AuthorizationServer {
     private final PasswordEncoder passwordEncoder;
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository() {
+    public RegisteredClientRepository registeredClientRepository(@Value("${app.oauth.gateway-redirect-uri}") String redirectUri) {
         var gateway = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway")
                 .clientSecret(passwordEncoder.encode("gateway-secret"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://localhost:8765/login/oauth2/code/gateway")
+                .redirectUri(redirectUri)
                 .scope("openid")
                 .scope("profile")
                 .build();
