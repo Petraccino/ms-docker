@@ -1,7 +1,21 @@
 spring:
-  profiles:
-    active: default
   application:
     name: hr-oauth
+---
+spring:
   config:
+    activate:
+      on-profile: default
     import: optional:configserver:http://localhost:8888
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+    import: optional:configserver:http://localhost:8888
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+    import: optional:configserver:http://hr-config-server:8888
